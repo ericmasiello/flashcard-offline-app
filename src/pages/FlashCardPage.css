@@ -1,0 +1,139 @@
+.flashcard-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  padding: 20px;
+}
+
+.flashcard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 800px;
+  margin: 0 auto 20px;
+  padding: 0 20px;
+}
+
+.flashcard-header h1 {
+  color: white;
+  font-size: 2rem;
+  margin: 0;
+}
+
+.admin-link {
+  color: white;
+  text-decoration: none;
+  padding: 8px 16px;
+  border: 1px solid white;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.admin-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.flashcard-content {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.card-counter {
+  color: white;
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+  opacity: 0.9;
+}
+
+.navigation-controls {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.button-primary {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.button-primary:hover:not(:disabled) {
+  background-color: #45a049;
+}
+
+.button-secondary {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #333;
+}
+
+.button-secondary:hover:not(:disabled) {
+  background-color: white;
+  transform: translateY(-2px);
+}
+
+.loading,
+.error,
+.empty-state {
+  color: white;
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.error {
+  background-color: rgba(255, 0, 0, 0.1);
+  border: 1px solid rgba(255, 0, 0, 0.3);
+  border-radius: 8px;
+  max-width: 400px;
+  margin: 50px auto;
+}
+
+.empty-state {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  max-width: 400px;
+  margin: 50px auto;
+}
+
+.empty-state h2 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+  .flashcard-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .flashcard-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .navigation-controls {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .button {
+    width: 150px;
+  }
+}
