@@ -70,6 +70,11 @@ dist
 dist-ssr
 *.local
 
+# PWA generated files
+public/sw.js
+public/workbox-*.js
+public/manifest.webmanifest
+
 # Build outputs
 build/
 out/

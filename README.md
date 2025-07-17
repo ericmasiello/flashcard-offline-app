@@ -1,22 +1,27 @@
-# Flash Cards Application
+# Flash Cards PWA
 
-A client-side only flash card web application built with React 19, TypeScript, and Vite. The app works completely offline using IndexedDB for data storage.
+A **Progressive Web App (PWA)** flash card application built with React 19, TypeScript, and Vite. The app works completely offline using IndexedDB for data storage and can be installed on any device.
 
 ## Features
 
-- **Flash Card Display**: Navigate through flash cards with flip animation
-- **CSV Import**: Import flash cards via CSV format in the admin panel
-- **Offline Support**: Works completely offline using IndexedDB storage
-- **Responsive Design**: Mobile-friendly interface
-- **TypeScript**: Full type safety throughout the application
+- **💾 Offline Support**: Works completely offline with service worker caching
+- **📱 Installable**: Can be installed as a native app on mobile and desktop
+- **🔄 Flash Card Display**: Navigate through flash cards with flip animation
+- **📊 CSV Import**: Import flash cards via CSV format in the admin panel
+- **🔍 Network Status**: Shows online/offline status
+- **📲 Install Prompt**: Automatic PWA installation prompt
+- **📱 Responsive Design**: Mobile-friendly interface
+- **🔒 TypeScript**: Full type safety throughout the application
 
 ## Tech Stack
 
 - **React 19** with TypeScript
 - **React Router** for navigation
 - **Vite** for fast development and building
+- **Vite PWA Plugin** for service worker and manifest generation
 - **Dexie** for IndexedDB management
 - **Papa Parse** for CSV parsing
+- **Canvas API** for generating PWA icons
 
 ## Getting Started
 
@@ -45,7 +50,38 @@ npm run dev
 npm run build
 ```
 
-The built files will be in the `dist` directory.
+The built files will be in the `dist` directory, including:
+- Service worker for offline functionality
+- Web app manifest for PWA installation
+- Precached assets for offline use
+
+### Generating PWA Icons
+
+```bash
+npm run generate-icons
+```
+
+This creates optimized PNG icons for the PWA from the vector design.
+
+## PWA Features
+
+### Installation
+- **Desktop**: Look for the install button in your browser's address bar
+- **Mobile**: Use the "Add to Home Screen" option in your browser menu
+- **Automatic Prompt**: The app will show an install prompt when criteria are met
+
+### Offline Functionality
+- All app functionality works offline after first visit
+- Flash cards are stored locally in IndexedDB
+- Service worker caches all assets
+- Network status indicator shows online/offline state
+
+### App Manifest
+The app includes a comprehensive web app manifest with:
+- Custom app icons (192x192, 512x512)
+- Standalone display mode
+- Theme and background colors
+- Proper metadata for app stores
 
 ## Usage
 

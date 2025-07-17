@@ -52,11 +52,12 @@
   text-align: center;
   line-height: 1.4;
   flex-grow: 1;
-  display: flex;
+  /* display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: center; */
   word-wrap: break-word;
   hyphens: auto;
+  overflow: auto;
 }
 
 .flashcard-hint {
