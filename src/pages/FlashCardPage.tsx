@@ -1,40 +1,47 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { FlashCardComponent } from '../components/FlashCardComponent';
 import { flashCardService } from '../services/database';
 import './FlashCardPage.css';
 
 export const FlashCardPage: React.FC = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-
   const [resetCard, setResetCard] = useState(false);
+  const queryClient = useQueryClient();
 
   const flashCardsResult = useSuspenseQuery({
     queryKey: ['flash-cards'],
     queryFn: async () => {
-      // Initialize random order if it doesn't exist
+      // // Initialize random order if it doesn't exist
       await flashCardService.initializeRandomOrder();
       // Get cards in randomized order
-      return await flashCardService.getAll();
+      const [flashCards, savedPosition] = await Promise.all([
+        flashCardService.getAll(),
+        flashCardService.getCurrentPosition(),
+      ]);
+      return [flashCards, savedPosition] as const;
     },
   });
 
-  const goToNext = () => {
-    if (flashCardsResult.data.length > 0) {
+  const [flashCards, currentIndex] = flashCardsResult.data;
+
+  const goToNext = async () => {
+    if (flashCards.length > 0) {
       setResetCard(true);
-      setCurrentIndex((prev) => (prev + 1) % flashCardsResult.data.length);
+      await flashCardService.saveCurrentPosition(
+        (currentIndex + 1) % flashCards.length,
+      );
+      await queryClient.invalidateQueries({ queryKey: ['flash-cards'] });
     }
   };
 
-  const goToPrevious = () => {
-    if (flashCardsResult.data.length > 0) {
+  const goToPrevious = async () => {
+    if (flashCards.length > 0) {
       setResetCard(true);
-      setCurrentIndex(
-        (prev) =>
-          (prev - 1 + flashCardsResult.data.length) %
-          flashCardsResult.data.length,
+      await flashCardService.saveCurrentPosition(
+        (currentIndex - 1 + flashCards.length) % flashCards.length,
       );
+      await queryClient.invalidateQueries({ queryKey: ['flash-cards'] });
     }
   };
 
@@ -42,7 +49,7 @@ export const FlashCardPage: React.FC = () => {
     setResetCard(false);
   };
 
-  if (flashCardsResult.data.length === 0) {
+  if (flashCards.length === 0) {
     return (
       <div className="flashcard-page">
         <div className="empty-state">
@@ -56,7 +63,7 @@ export const FlashCardPage: React.FC = () => {
     );
   }
 
-  const currentCard = flashCardsResult.data[currentIndex];
+  const currentCard = flashCards[currentIndex];
 
   return (
     <div className="flashcard-page">
@@ -69,7 +76,7 @@ export const FlashCardPage: React.FC = () => {
 
       <div className="flashcard-wrapper">
         <div className="card-counter">
-          Card {currentIndex + 1} of {flashCardsResult.data.length}
+          Card {currentIndex + 1} of {flashCards.length}
         </div>
 
         <FlashCardComponent
@@ -81,14 +88,14 @@ export const FlashCardPage: React.FC = () => {
         <div className="navigation-controls">
           <button
             onClick={goToPrevious}
-            disabled={flashCardsResult.data.length <= 1}
+            disabled={flashCards.length <= 1}
             className="button button-secondary"
           >
             Previous
           </button>
           <button
             onClick={goToNext}
-            disabled={flashCardsResult.data.length <= 1}
+            disabled={flashCards.length <= 1}
             className="button button-secondary"
           >
             Next

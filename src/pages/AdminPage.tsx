@@ -108,6 +108,9 @@ export const AdminPage: React.FC = () => {
       await queryClient.invalidateQueries({
         queryKey: ['flash-card-count'],
       });
+      await queryClient.invalidateQueries({
+        queryKey: ['flash-cards'],
+      });
     } catch (error) {
       console.error('Error clearing flash cards:', error);
       setMessage({

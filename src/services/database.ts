@@ -14,16 +14,25 @@ export interface CardOrder {
   position: number;
 }
 
+// Define the UserProgress interface for tracking user's current position
+export interface UserProgress {
+  id?: number;
+  key: string; // Always 'currentPosition' for this app
+  currentIndex: number;
+}
+
 // Define the database class
 export class FlashCardDB extends Dexie {
   flashcards!: Table<FlashCard>;
   cardOrder!: Table<CardOrder>;
+  userProgress!: Table<UserProgress>;
 
   constructor() {
     super('FlashCardDB');
     this.version(1).stores({
       flashcards: '++id, front, back',
-      cardOrder: '++id, flashCardId, position'
+      cardOrder: '++id, flashCardId, position',
+      userProgress: '++id, &key, currentIndex',
     });
   }
 }
@@ -37,17 +46,17 @@ export const flashCardService = {
   async getAll(): Promise<FlashCard[]> {
     // Get all card orders sorted by position
     const cardOrders = await db.cardOrder.orderBy('position').toArray();
-    
+
     if (cardOrders.length === 0) {
       // If no order exists, return cards in their natural order
       return await db.flashcards.toArray();
     }
-    
+
     // Get flash cards in the randomized order
     const flashCards = await Promise.all(
-      cardOrders.map(order => db.flashcards.get(order.flashCardId))
+      cardOrders.map((order) => db.flashcards.get(order.flashCardId)),
     );
-    
+
     // Filter out any undefined cards (in case of data inconsistency)
     return flashCards.filter((card): card is FlashCard => card !== undefined);
   },
@@ -82,6 +91,7 @@ export const flashCardService = {
   async clear(): Promise<void> {
     await db.flashcards.clear();
     await db.cardOrder.clear();
+    await this.resetCurrentPosition();
   },
 
   // Get flash card count
@@ -89,29 +99,60 @@ export const flashCardService = {
     return await db.flashcards.count();
   },
 
+  // Save the current card position
+  async saveCurrentPosition(index: number): Promise<void> {
+    await db.userProgress.clear();
+
+    await db.userProgress.add({
+      key: 'currentPosition',
+      currentIndex: index,
+    });
+  },
+
+  // Get the current card position
+  async getCurrentPosition(): Promise<number> {
+    const progress = await db.userProgress
+      .where('key')
+      .equals('currentPosition')
+      .toArray()
+      .then((results) => results.at(0));
+
+    return progress?.currentIndex ?? 0;
+  },
+
+  // Reset current position to 0
+  async resetCurrentPosition(): Promise<void> {
+    await this.saveCurrentPosition(0);
+  },
+
   // Generate a new random order for all flash cards
   async regenerateRandomOrder(): Promise<void> {
     const allCards = await db.flashcards.toArray();
-    
+
     // Clear existing order
     await db.cardOrder.clear();
-    
+
     if (allCards.length === 0) {
       return;
     }
-    
+
     // Create array of card IDs and shuffle them
-    const cardIds = allCards.map(card => card.id!);
+    const cardIds = allCards.map((card) => card.id!);
     const shuffledIds = this.shuffleArray([...cardIds]);
-    
+
     // Create card order entries
-    const cardOrderEntries: Omit<CardOrder, 'id'>[] = shuffledIds.map((flashCardId, index) => ({
-      flashCardId,
-      position: index
-    }));
-    
+    const cardOrderEntries: Omit<CardOrder, 'id'>[] = shuffledIds.map(
+      (flashCardId, index) => ({
+        flashCardId,
+        position: index,
+      }),
+    );
+
     // Save the new order
     await db.cardOrder.bulkAdd(cardOrderEntries);
+
+    // Reset current position to the first card
+    await this.resetCurrentPosition();
   },
 
   // Utility function to shuffle an array using Fisher-Yates algorithm
@@ -137,5 +178,5 @@ export const flashCardService = {
     if (!isValid) {
       await this.regenerateRandomOrder();
     }
-  }
+  },
 };
