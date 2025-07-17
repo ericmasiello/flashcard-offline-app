@@ -92,7 +92,7 @@ export const FlashCardPage: React.FC = () => {
         </Link>
       </header>
 
-      <div className="flashcard-content">
+      <div className="flashcard-wrapper">
         <div className="card-counter">
           Card {currentIndex + 1} of {flashCards.length}
         </div>
