@@ -9,6 +9,7 @@ export const FlashCardPage: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [resetCard, setResetCard] = useState(false);
 
   useEffect(() => {
     loadFlashCards();
@@ -31,14 +32,20 @@ export const FlashCardPage: React.FC = () => {
 
   const goToNext = () => {
     if (flashCards.length > 0) {
+      setResetCard(true);
       setCurrentIndex((prev) => (prev + 1) % flashCards.length);
     }
   };
 
   const goToPrevious = () => {
     if (flashCards.length > 0) {
+      setResetCard(true);
       setCurrentIndex((prev) => (prev - 1 + flashCards.length) % flashCards.length);
     }
+  };
+
+  const handleResetComplete = () => {
+    setResetCard(false);
   };
 
   if (loading) {
@@ -90,7 +97,11 @@ export const FlashCardPage: React.FC = () => {
           Card {currentIndex + 1} of {flashCards.length}
         </div>
 
-        <FlashCardComponent flashCard={currentCard} />
+        <FlashCardComponent 
+          flashCard={currentCard} 
+          resetCard={resetCard}
+          onResetComplete={handleResetComplete}
+        />
 
         <div className="navigation-controls">
           <button 
