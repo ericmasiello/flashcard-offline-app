@@ -173,6 +173,16 @@
   transform: translateY(-2px);
 }
 
+.button-secondary {
+  background-color: #2196F3;
+  color: white;
+}
+
+.button-secondary:hover:not(:disabled) {
+  background-color: #0b7dda;
+  transform: translateY(-2px);
+}
+
 .button-danger {
   background-color: #f44336;
   color: white;

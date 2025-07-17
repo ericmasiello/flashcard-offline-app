@@ -1,46 +1,40 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { FlashCardComponent } from '../components/FlashCardComponent';
-import { flashCardService, type FlashCard } from '../services/database';
+import { flashCardService } from '../services/database';
 import './FlashCardPage.css';
 
 export const FlashCardPage: React.FC = () => {
-  const [flashCards, setFlashCards] = useState<FlashCard[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+
   const [resetCard, setResetCard] = useState(false);
 
-  useEffect(() => {
-    loadFlashCards();
-  }, []);
-
-  const loadFlashCards = async () => {
-    try {
-      setLoading(true);
-      const cards = await flashCardService.getAll();
-      setFlashCards(cards);
-      setCurrentIndex(0);
-      setError(null);
-    } catch (err) {
-      setError('Failed to load flash cards');
-      console.error('Error loading flash cards:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const flashCardsResult = useSuspenseQuery({
+    queryKey: ['flash-cards'],
+    queryFn: async () => {
+      // Initialize random order if it doesn't exist
+      await flashCardService.initializeRandomOrder();
+      // Get cards in randomized order
+      return await flashCardService.getAll();
+    },
+  });
 
   const goToNext = () => {
-    if (flashCards.length > 0) {
+    if (flashCardsResult.data.length > 0) {
       setResetCard(true);
-      setCurrentIndex((prev) => (prev + 1) % flashCards.length);
+      setCurrentIndex((prev) => (prev + 1) % flashCardsResult.data.length);
     }
   };
 
   const goToPrevious = () => {
-    if (flashCards.length > 0) {
+    if (flashCardsResult.data.length > 0) {
       setResetCard(true);
-      setCurrentIndex((prev) => (prev - 1 + flashCards.length) % flashCards.length);
+      setCurrentIndex(
+        (prev) =>
+          (prev - 1 + flashCardsResult.data.length) %
+          flashCardsResult.data.length,
+      );
     }
   };
 
@@ -48,26 +42,7 @@ export const FlashCardPage: React.FC = () => {
     setResetCard(false);
   };
 
-  if (loading) {
-    return (
-      <div className="flashcard-page">
-        <div className="loading">Loading flash cards...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flashcard-page">
-        <div className="error">
-          <p>{error}</p>
-          <button onClick={loadFlashCards}>Try Again</button>
-        </div>
-      </div>
-    );
-  }
-
-  if (flashCards.length === 0) {
+  if (flashCardsResult.data.length === 0) {
     return (
       <div className="flashcard-page">
         <div className="empty-state">
@@ -81,7 +56,7 @@ export const FlashCardPage: React.FC = () => {
     );
   }
 
-  const currentCard = flashCards[currentIndex];
+  const currentCard = flashCardsResult.data[currentIndex];
 
   return (
     <div className="flashcard-page">
@@ -94,26 +69,26 @@ export const FlashCardPage: React.FC = () => {
 
       <div className="flashcard-wrapper">
         <div className="card-counter">
-          Card {currentIndex + 1} of {flashCards.length}
+          Card {currentIndex + 1} of {flashCardsResult.data.length}
         </div>
 
-        <FlashCardComponent 
-          flashCard={currentCard} 
+        <FlashCardComponent
+          flashCard={currentCard}
           resetCard={resetCard}
           onResetComplete={handleResetComplete}
         />
 
         <div className="navigation-controls">
-          <button 
+          <button
             onClick={goToPrevious}
-            disabled={flashCards.length <= 1}
+            disabled={flashCardsResult.data.length <= 1}
             className="button button-secondary"
           >
             Previous
           </button>
-          <button 
+          <button
             onClick={goToNext}
-            disabled={flashCards.length <= 1}
+            disabled={flashCardsResult.data.length <= 1}
             className="button button-secondary"
           >
             Next
