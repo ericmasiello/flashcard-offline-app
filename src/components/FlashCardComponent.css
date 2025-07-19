@@ -54,7 +54,7 @@
   font-size: 1.2rem;
   text-align: left;
   line-height: 1.4;
-  flex-grow: 1;  
+  flex-grow: 1;
   word-wrap: break-word;
   hyphens: auto;
   overflow: auto;
@@ -69,14 +69,16 @@
 }
 
 @media (max-width: 480px) {
-  
-  
   .flashcard-content {
     font-size: 1rem;
   }
-  
+
   .flashcard-front,
   .flashcard-back {
     padding: 15px;
   }
+}
+
+.flashcard-options {
+  list-style-type: upper-alpha;
 }

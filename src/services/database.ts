@@ -7,6 +7,16 @@ export interface FlashCard {
   back: string;
 }
 
+export interface FormattedFlashCard {
+  id?: number;
+  front: {
+    question: string;
+    options: string[];
+    _raw: string;
+  };
+  back: string;
+}
+
 // Define the CardOrder interface for tracking randomized order
 export interface CardOrder {
   id?: number;
@@ -43,13 +53,13 @@ export const db = new FlashCardDB();
 // Database operations
 export const flashCardService = {
   // Get all flash cards in randomized order
-  async getAll(): Promise<FlashCard[]> {
+  async getAll(): Promise<FormattedFlashCard[]> {
     // Get all card orders sorted by position
     const cardOrders = await db.cardOrder.orderBy('position').toArray();
 
     if (cardOrders.length === 0) {
       // If no order exists, return cards in their natural order
-      return await db.flashcards.toArray();
+      return (await db.flashcards.toArray()).map(this.format);
     }
 
     // Get flash cards in the randomized order
@@ -58,12 +68,33 @@ export const flashCardService = {
     );
 
     // Filter out any undefined cards (in case of data inconsistency)
-    return flashCards.filter((card): card is FlashCard => card !== undefined);
+    return flashCards
+      .filter((card): card is FlashCard => card !== undefined)
+      .map(this.format);
+  },
+
+  format(card: FlashCard): FormattedFlashCard {
+    const [question, rawOptions] = card.front.split('A:');
+
+    // split options by "A:", "B:", etc into an array, removing the "A:", "B:", etc.
+    const options = rawOptions
+      .split(/(?=[A-Z]:)/)
+      .map((option) => option.replace(/^[A-Z]:\s*/, '').trim())
+      .filter(Boolean);
+
+    return {
+      ...card,
+      front: {
+        question: question.trim(),
+        options: options,
+        _raw: card.front, // Store the original front text for reference
+      },
+    };
   },
 
   // Get all flash cards in their natural order (without randomization)
-  async getAllNatural(): Promise<FlashCard[]> {
-    return await db.flashcards.toArray();
+  async getAllNatural(): Promise<FormattedFlashCard[]> {
+    return (await db.flashcards.toArray()).map(this.format);
   },
 
   // Add a single flash card and update random order
