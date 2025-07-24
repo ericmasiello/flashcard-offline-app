@@ -16,6 +16,7 @@
   transform-style: preserve-3d;
   border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-height: 600px;
 }
 
 .flashcard.flipped {
@@ -29,10 +30,6 @@
   height: 100%;
   backface-visibility: hidden;
   border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
   padding: 20px;
   box-sizing: border-box;
   display: grid;

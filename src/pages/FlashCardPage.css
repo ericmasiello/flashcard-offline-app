@@ -1,9 +1,8 @@
 .flashcard-page {
-  min-height: 100vh;
   background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
   padding: 20px;
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: auto 1fr;
 }
 
 .flashcard-header {
@@ -28,18 +27,16 @@
   border: 1px solid white;
   border-radius: 4px;
   transition: background-color 0.3s;
-  margin-inline-start: 20px;;
+  margin-inline-start: 20px;
 }
 
 .admin-link:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
 
-.flashcard-wrapper { 
+.flashcard-wrapper {
   display: grid;
-  grid-template-rows: auto 1fr auto;  
-
-  max-height: 600px;
+  grid-template-rows: auto 1fr auto;
 }
 
 .card-counter {
@@ -75,7 +72,7 @@
 }
 
 .button-primary {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
 }
 
@@ -127,17 +124,17 @@
     gap: 15px;
     text-align: center;
   }
-  
+
   .flashcard-header h1 {
     font-size: 1.5rem;
   }
-  
+
   .navigation-controls {
     flex-direction: column;
     align-items: center;
     gap: 10px;
   }
-  
+
   .button {
     width: 150px;
   }
