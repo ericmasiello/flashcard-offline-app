@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { FlashCardPage } from './pages/FlashCardPage';
 import { AdminPage } from './pages/AdminPage';
+import { FavoritesPage } from './pages/FavoritesPage';
 import { PWAInstallPrompt } from './components/PWAInstallPrompt';
 import { NetworkStatus } from './components/NetworkStatus';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -17,6 +18,7 @@ function App() {
         <Router>
           <Routes>
             <Route path="/" element={<FlashCardPage />} />
+            <Route path="/favorites" element={<FavoritesPage />} />
             <Route path="/admin" element={<AdminPage />} />
           </Routes>
           <PWAInstallPrompt />
