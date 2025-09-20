@@ -5,6 +5,7 @@ export interface FlashCard {
   id?: number;
   front: string;
   back: string;
+  favorite?: boolean;
 }
 
 export interface FormattedFlashCard {
@@ -15,6 +16,7 @@ export interface FormattedFlashCard {
     _raw: string;
   };
   back: string;
+  favorite?: boolean;
 }
 
 // Define the CardOrder interface for tracking randomized order
@@ -41,6 +43,13 @@ export class FlashCardDB extends Dexie {
     super('FlashCardDB');
     this.version(1).stores({
       flashcards: '++id, front, back',
+      cardOrder: '++id, flashCardId, position',
+      userProgress: '++id, &key, currentIndex',
+    });
+
+    // Version 2: Add favorite field
+    this.version(2).stores({
+      flashcards: '++id, front, back, favorite',
       cardOrder: '++id, flashCardId, position',
       userProgress: '++id, &key, currentIndex',
     });
@@ -194,6 +203,27 @@ export const flashCardService = {
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     return shuffled;
+  },
+
+  // Get all favorite flash cards
+  async getFavorites(): Promise<FormattedFlashCard[]> {
+    const favoriteCards = await db.flashcards
+      .filter((card) => card.favorite === true)
+      .toArray();
+    return favoriteCards.map(this.format);
+  },
+
+  // Toggle favorite status of a flash card
+  async toggleFavorite(id: number): Promise<void> {
+    const card = await db.flashcards.get(id);
+    if (card) {
+      await db.flashcards.update(id, { favorite: !card.favorite });
+    }
+  },
+
+  // Set favorite status of a flash card
+  async setFavorite(id: number, favorite: boolean): Promise<void> {
+    await db.flashcards.update(id, { favorite });
   },
 
   // Check if random order exists and is complete

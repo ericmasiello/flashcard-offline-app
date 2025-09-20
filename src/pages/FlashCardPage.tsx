@@ -49,6 +49,11 @@ export const FlashCardPage: React.FC = () => {
     setResetCard(false);
   };
 
+  const handleFavoriteChange = async () => {
+    // Invalidate the main flash cards query to refresh the data
+    await queryClient.invalidateQueries({ queryKey: ['flash-cards'] });
+  };
+
   if (flashCards.length === 0) {
     return (
       <div className="flashcard-page">
@@ -69,9 +74,14 @@ export const FlashCardPage: React.FC = () => {
     <div className="flashcard-page">
       <header className="flashcard-header">
         <h1>Flash Cards</h1>
-        <Link to="/admin" className="admin-link">
-          Admin
-        </Link>
+        <div className="header-links">
+          <Link to="/favorites" className="nav-link">
+            Favorites
+          </Link>
+          <Link to="/admin" className="admin-link">
+            Admin
+          </Link>
+        </div>
       </header>
 
       <div className="flashcard-wrapper">
@@ -83,6 +93,7 @@ export const FlashCardPage: React.FC = () => {
           flashCard={currentCard}
           resetCard={resetCard}
           onResetComplete={handleResetComplete}
+          onFavoriteChange={handleFavoriteChange}
         />
 
         <div className="navigation-controls">

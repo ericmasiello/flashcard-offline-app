@@ -1,17 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { type FormattedFlashCard } from '../services/database';
+import {
+  type FormattedFlashCard,
+  flashCardService,
+} from '../services/database';
 import './FlashCardComponent.css';
 
 interface FlashCardComponentProps {
   flashCard: FormattedFlashCard;
   resetCard?: boolean;
   onResetComplete?: () => void;
+  onFavoriteChange?: () => void;
 }
 
 export const FlashCardComponent: React.FC<FlashCardComponentProps> = ({
   flashCard,
   resetCard = false,
   onResetComplete,
+  onFavoriteChange,
 }) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const frontRef = useRef<HTMLDivElement>(null);
@@ -80,10 +85,27 @@ export const FlashCardComponent: React.FC<FlashCardComponentProps> = ({
     }, 50); // Small delay to allow flip animation to start
   };
 
+  const handleFavoriteToggle = async (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card flip when clicking favorite button
+    if (flashCard.id) {
+      await flashCardService.toggleFavorite(flashCard.id);
+      onFavoriteChange?.(); // Notify parent component of change
+    }
+  };
+
   return (
     <div className="flashcard-container" onClick={handleFlip}>
       <div className={`flashcard ${isFlipped ? 'flipped' : ''}`}>
         <div className="flashcard-front" ref={frontRef}>
+          <button
+            className="favorite-button"
+            onClick={handleFavoriteToggle}
+            aria-label={
+              flashCard.favorite ? 'Remove from favorites' : 'Add to favorites'
+            }
+          >
+            {flashCard.favorite ? '★' : '☆'}
+          </button>
           <div className="flashcard-content" ref={frontContentRef}>
             {isDebugMode ? (
               <div>{flashCard.front._raw}</div>
@@ -103,6 +125,15 @@ export const FlashCardComponent: React.FC<FlashCardComponentProps> = ({
           <div className="flashcard-hint">Click to flip</div>
         </div>
         <div className="flashcard-back" ref={backRef}>
+          <button
+            className="favorite-button"
+            onClick={handleFavoriteToggle}
+            aria-label={
+              flashCard.favorite ? 'Remove from favorites' : 'Add to favorites'
+            }
+          >
+            {flashCard.favorite ? '★' : '☆'}
+          </button>
           <div className="flashcard-content" ref={backContentRef}>
             {flashCard.back}
           </div>
