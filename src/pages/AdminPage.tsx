@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import Papa from 'papaparse';
@@ -6,7 +6,6 @@ import { flashCardService, type FlashCard } from '../services/database';
 import './AdminPage.css';
 
 export const AdminPage: React.FC = () => {
-  const [csvContent, setCsvContent] = useState('');
   const [message, setMessage] = useState<{
     type: 'success' | 'error';
     text: string;
@@ -20,6 +19,19 @@ export const AdminPage: React.FC = () => {
       return await flashCardService.count();
     },
   });
+
+  const initialCSVContent = useSuspenseQuery({
+    queryKey: ['csv-content'],
+    queryFn: async () => {
+      const response = await fetch('/pmp.csv');
+      if (!response.ok) {
+        throw new Error('Failed to fetch CSV content');
+      }
+      return response.text();
+    },
+  });
+
+  const [csvContent, setCsvContent] = useState(initialCSVContent.data);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
