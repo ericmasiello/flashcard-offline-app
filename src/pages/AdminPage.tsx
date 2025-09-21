@@ -20,18 +20,7 @@ export const AdminPage: React.FC = () => {
     },
   });
 
-  const initialCSVContent = useSuspenseQuery({
-    queryKey: ['csv-content'],
-    queryFn: async () => {
-      const response = await fetch('/pmp.csv');
-      if (!response.ok) {
-        throw new Error('Failed to fetch CSV content');
-      }
-      return response.text();
-    },
-  });
-
-  const [csvContent, setCsvContent] = useState(initialCSVContent.data);
+  const [csvContent, setCsvContent] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
