@@ -12,6 +12,14 @@ interface FlashCardComponentProps {
   onFavoriteChange?: () => void;
 }
 
+function transformLineBreaksToParagraphs(text: string) {
+  return text.split('\n').map((line, index) => (
+    <p key={index} style={{ margin: '0 0 10px 0' }}>
+      {line}
+    </p>
+  ));
+}
+
 export const FlashCardComponent: React.FC<FlashCardComponentProps> = ({
   flashCard,
   resetCard = false,
@@ -111,7 +119,7 @@ export const FlashCardComponent: React.FC<FlashCardComponentProps> = ({
               <div>{flashCard.front._raw}</div>
             ) : (
               <>
-                {flashCard.front.question}
+                {transformLineBreaksToParagraphs(flashCard.front.question)}
                 <ol className="flashcard-options">
                   {flashCard.front.options.map((option, index) => (
                     <li key={index} className="flashcard-option">
@@ -135,7 +143,7 @@ export const FlashCardComponent: React.FC<FlashCardComponentProps> = ({
             {flashCard.favorite ? '★' : '☆'}
           </button>
           <div className="flashcard-content" ref={backContentRef}>
-            {flashCard.back}
+            {transformLineBreaksToParagraphs(flashCard.back)}
           </div>
           <div className="flashcard-hint">Click to flip back</div>
         </div>
